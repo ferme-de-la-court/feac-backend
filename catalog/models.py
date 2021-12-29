@@ -70,13 +70,11 @@ class Product(db.Model):
     @classmethod
     def create(cls, data):
         p = cls(name=data.get("name"), desc=data.get("desc"))
+        p.highlight = data.get("highlight", False)
+        p.available = data.get("available", True)
         p.categories = [Category.get_or_create(c) for c in data.get("categories", [])]
 
-        prices = data.get("prices", [])
-        if not isinstance(prices, list):
-            raise BadDataException("prices should be an array")
-
-        for i in prices:
+        for i in data.get("prices", []):
             if not isinstance(i, dict):
                 raise BadDataException("expected object for price")
 
@@ -104,8 +102,10 @@ class Product(db.Model):
         p.categories[:] = []
         p.categories = [Category.get_or_create(c) for c in data.get("categories", [])]
 
-        p.prices[:] = []
-        for i in prices:
+        for i in p.prices:
+            db.session.delete(i)
+        
+        for i in data.get("prices", []):
             if not isinstance(i, dict):
                 raise BadDataException("expected object for price")
 
@@ -117,7 +117,7 @@ class Product(db.Model):
             p.prices.append(r)
 
         db.session.add(p)
-        db.session.commit(p)
+        db.session.commit()
         return p
 
     @classmethod
