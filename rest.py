@@ -47,14 +47,17 @@ def make_token(payload):
 
 def cors(resp):
     """set CORS headers"""
-    resp.access_control_allow_origin = "*"
-    resp.access_control_allow_methods = "GET", "OPTIONS", "PUT", "POST", "DELETE"
-    resp.access_control_allow_headers = "Accept", "Accept-Language", "Content-Language", "Origin", "Content-Type"
+    resp.access_control_allow_origin = current_app.config["CORS_ORIGIN"]
+    resp.access_control_allow_methods = current_app.config["CORS_METHODS"]
+    resp.access_control_allow_headers = current_app.config["CORS_HEADERS"]
     return resp
 
 
 def check_token():
     """check that Authorization header as a valid JWT token"""
+    if request.method == 'OPTIONS':
+        return "", 200
+
     if cred := request.authorization:
         if cred.username == current_app.config['DEFAULT_USER'] and cred.password == current_app.config['DEFAULT_PASS']:
             g.user = cred.username
@@ -83,7 +86,7 @@ def check_token():
 
 def generate_token(resp):
     """set the Authorization header with a valid JWT token for next request(s)"""
-    if resp.status_code >= 400:
+    if resp.status_code >= 400 or request.method == "OPTIONS":
         return resp
 
 

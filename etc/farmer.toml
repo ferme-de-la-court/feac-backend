@@ -10,3 +10,14 @@ JWT_ISSUER = 'farmer.fermedelacourt.be'
 
 DEFAULT_USER = 'admin'
 DEFAULT_PASS='admin!'
+
+CORS_ORIGIN = "*"
+CORS_HEADERS = [
+  "Authorization",
+  "Accept",
+  "Accept-Language",
+  "Content-Language",
+  "Origin",
+  "Content-Type",
+]
+CORS_METHODS = ["GET", "OPTIONS", "PUT", "POST", "DELETE"]
