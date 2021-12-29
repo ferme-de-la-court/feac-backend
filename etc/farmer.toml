@@ -1,0 +1,12 @@
+SECRET_KEY = "supersecretkey"
+
+DATABASE = "./farmer.db"
+SQLALCHEMY_DATABASE_URI = "sqlite:///farmer.db"
+SQLALCHEMY_TRACK_MODIFICATIONS = false
+
+JSON_AS_ASCII = false
+
+JWT_ISSUER = 'farmer.fermedelacourt.be'
+
+DEFAULT_USER = 'admin'
+DEFAULT_PASS='admin!'
