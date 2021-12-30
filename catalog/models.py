@@ -104,7 +104,7 @@ class Product(db.Model):
 
         for i in p.prices:
             db.session.delete(i)
-        
+
         for i in data.get("prices", []):
             if not isinstance(i, dict):
                 raise BadDataException("expected object for price")
@@ -192,6 +192,8 @@ class Contact(db.Model):
     def create(cls, data):
         return cls(**data)
 
+
+@dataclass
 class Address(db.Model):
     id: int
     street: str
@@ -209,15 +211,41 @@ class Address(db.Model):
     def create(cls, data):
         return cls(**data)
 
+
+@dataclass
+class OrderItem(db.Model):
+    product_id: int
+    amount: float
+    quantity: int
+    unit: str
+
+    __tablename__ = "order_items"
+
+    product_id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False, primary_key=True)
+    amount = db.Column(db.Float, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    unit = db.Column(db.String(64), nullable=False)
+
+
 @dataclass
 class Order(db.Model):
     id: int
+    created: datetime.datetime
+    when: datetime.datetime
+    ready: bool
+    closed: bool
+    contact: Contact
+    address: Address
+    items: List[OrderItem]
 
     __tablename__ = "orders"
 
     id = db.Column(db.Integer, primary_key=True)
     created = db.Column(db.DateTime, server_default=functions.now())
     when = db.Column(db.Date, nullable=False)
+    ready = db.Column(db.Boolean, nullable=False, default=False)
+    closed = db.Column(db.Boolean, nullable=False, default=False)
     contact_id = db.Column(db.Integer, db.ForeignKey("contacts.id"), nullable=False)
     contact = db.relationship('Contact', lazy=True)
     addr_id = db.Column(db.Integer, db.ForeignKey("addresses.id"), nullable=True)
@@ -250,17 +278,3 @@ class Order(db.Model):
         db.session.add(o)
         db.session.commit()
         return o
-
-@dataclass
-class OrderItem(db.Model):
-    amount: float
-    quantity: int
-    unit: str
-
-    __tablename__ = "order_items"
-
-    product_id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False, primary_key=True)
-    amount = db.Column(db.Float, nullable=False)
-    quantity = db.Column(db.Integer, nullable=False, default=1)
-    unit = db.Column(db.String(64), nullable=False)

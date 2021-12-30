@@ -8,6 +8,7 @@ from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
 import toml
 from farmer.rest import cors, check_token, generate_token
+from farmer.utils import FarmerEncoder
 
 db = SQLAlchemy()
 
@@ -18,6 +19,8 @@ def create_app():
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    app.json_encoder = FarmerEncoder
 
     db.init_app(app)
     app.cli.add_command(init_db_cmd)
